@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-Validata.Worker-6f75341d-3850-488b-bf16-0e561cf574dc</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Validata.Core\Validata.Core.csproj" />
+    <ProjectReference Include="..\Validata.Application\Validata.Application.csproj" />
+    <ProjectReference Include="..\Validata.Infrastructure\Validata.Infrastructure.csproj" />
+    <ProjectReference Include="..\Validata.Integration\Validata.Integration.csproj" />
+  </ItemGroup>
+</Project>

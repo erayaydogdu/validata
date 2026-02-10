@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Validata.Api/Validata.Api.csproj" />
+    <Project Path="src/Validata.Application/Validata.Application.csproj" />
+    <Project Path="src/Validata.Core/Validata.Core.csproj" />
+    <Project Path="src/Validata.Infrastructure/Validata.Infrastructure.csproj" />
+    <Project Path="src/Validata.Integration/Validata.Integration.csproj" />
+    <Project Path="src/Validata.Worker/Validata.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Validata.Tests/Validata.Tests.csproj" />
+  </Folder>
+</Solution>

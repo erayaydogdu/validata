@@ -1,0 +1,94 @@
+name: Validata CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Restore Dependencies (.NET)
+        run: dotnet restore src/Validata.sln
+      
+      - name: Build (.NET)
+        run: dotnet build src/Validata.sln --no-restore
+      
+      - name: Run Tests (.NET)
+        run: dotnet test src/Validata.sln --no-build --verbosity minimal --collect:"Xplat Code Coverage"
+      
+      - name: Install Angular
+        run: npm install --prefix src/Validata.Web
+      
+      - name: Build Angular
+        run: npm run build --prefix src/Validata.Web
+      
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/*/coverage.cobertura.xml
+          fail_ci_if_error: false
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Login to Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      
+      - name: Build and Push API
+        run: |
+          docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/validata-api:${{ github.sha }} -f src/Validata.Api/Dockerfile .
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/validata-api:${{ github.sha }}
+      
+      - name: Build and Push Frontend
+        run: |
+          docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/validata-web:${{ github.sha }} -f src/Validata.Web/Dockerfile .
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/validata-web:${{ github.sha }}
+
+  deploy-dev:
+    needs: docker
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    environment: Development
+    steps:
+      - name: Deploy to Development
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: validata-api-dev
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_DEV }}
+          images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/validata-api:${{ github.sha }}
+
+  deploy-staging:
+    needs: docker
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: Staging
+    steps:
+      - name: Deploy to Staging
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: validata-api-staging
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
+          images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/validata-api:${{ github.sha }}

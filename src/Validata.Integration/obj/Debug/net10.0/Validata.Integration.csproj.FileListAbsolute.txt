@@ -1,0 +1,15 @@
+/home/home/Desktop/lab/validata/src/Validata.Integration/bin/Debug/net10.0/Validata.Integration.deps.json
+/home/home/Desktop/lab/validata/src/Validata.Integration/bin/Debug/net10.0/Validata.Integration.dll
+/home/home/Desktop/lab/validata/src/Validata.Integration/bin/Debug/net10.0/Validata.Integration.pdb
+/home/home/Desktop/lab/validata/src/Validata.Integration/bin/Debug/net10.0/Validata.Core.dll
+/home/home/Desktop/lab/validata/src/Validata.Integration/bin/Debug/net10.0/Validata.Core.pdb
+/home/home/Desktop/lab/validata/src/Validata.Integration/obj/Debug/net10.0/Validata.Integration.csproj.AssemblyReference.cache
+/home/home/Desktop/lab/validata/src/Validata.Integration/obj/Debug/net10.0/Validata.Integration.GeneratedMSBuildEditorConfig.editorconfig
+/home/home/Desktop/lab/validata/src/Validata.Integration/obj/Debug/net10.0/Validata.Integration.AssemblyInfoInputs.cache
+/home/home/Desktop/lab/validata/src/Validata.Integration/obj/Debug/net10.0/Validata.Integration.AssemblyInfo.cs
+/home/home/Desktop/lab/validata/src/Validata.Integration/obj/Debug/net10.0/Validata.Integration.csproj.CoreCompileInputs.cache
+/home/home/Desktop/lab/validata/src/Validata.Integration/obj/Debug/net10.0/Validata.DAE0FB0E.Up2Date
+/home/home/Desktop/lab/validata/src/Validata.Integration/obj/Debug/net10.0/Validata.Integration.dll
+/home/home/Desktop/lab/validata/src/Validata.Integration/obj/Debug/net10.0/refint/Validata.Integration.dll
+/home/home/Desktop/lab/validata/src/Validata.Integration/obj/Debug/net10.0/Validata.Integration.pdb
+/home/home/Desktop/lab/validata/src/Validata.Integration/obj/Debug/net10.0/ref/Validata.Integration.dll
