@@ -1,11 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="auth-page">
       <div class="auth-container">
@@ -64,6 +66,7 @@ import { RouterModule } from '@angular/router';
       padding: 0.75rem;
       border: 1px solid #ddd;
       border-radius: 4px;
+      box-sizing: border-box;
     }
     .btn {
       width: 100%;
@@ -99,6 +102,26 @@ import { RouterModule } from '@angular/router';
 export class LoginComponent {
   email = '';
   password = '';
-  loading = inject(false);
-  error = inject<string | null>(null);
+  loading = signal(false);
+  error = signal<string | null>(null);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  onSubmit(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.authService.login({
+      email: this.email,
+      password: this.password
+    }).subscribe({
+      next: () => {
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'Login failed. Please check your credentials.');
+        this.loading.set(false);
+      }
+    });
+  }
 }

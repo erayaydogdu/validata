@@ -68,6 +68,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Server=localhost;Database=ValidataDb;Trusted_Connection=True;TrustServerCertificate=True;";
 
@@ -88,12 +98,22 @@ builder.Services.AddSingleton(new JwtTokenService(jwtSecret, jwtIssuer, jwtAudie
 
 var app = builder.Build();
 
+// Database initialization and seeding
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await dbContext.Database.EnsureCreatedAsync();
+    await DataSeeder.SeedAsync(dbContext);
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+app.UseCors();
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();

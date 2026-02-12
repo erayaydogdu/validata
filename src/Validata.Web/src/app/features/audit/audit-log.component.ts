@@ -101,7 +101,7 @@ export interface AuditLog {
                       @if (log.entityId) {
                         <span class="entity-id">{{ log.entityId.substring(0, 8) }}...</span>
                       }
-                    } else {
+                    } @else {
                       -
                     }
                   </td>
@@ -110,7 +110,7 @@ export interface AuditLog {
                       <span class="detail-value">{{ log.newValue }}</span>
                     } @else if (log.oldValue) {
                       <span class="detail-value">{{ log.oldValue }}</span>
-                    } else {
+                    } @else {
                       -
                     }
                   </td>

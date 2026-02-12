@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { DocumentService, Document } from '../services/document.service';
+import { DocumentService, Document } from '../../../core/services/document.service';
 
 @Component({
   selector: 'app-document-list',
@@ -227,7 +227,7 @@ export class DocumentListComponent {
   download(id: string): void {
     this.documentService.downloadDocument(id)
       .subscribe({
-        next: (blob) => {
+        next: (blob: Blob) => {
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
@@ -235,7 +235,7 @@ export class DocumentListComponent {
           a.click();
           window.URL.revokeObjectURL(url);
         },
-        error: (err) => {
+        error: (err: unknown) => {
           console.error('Download failed', err);
         }
       });

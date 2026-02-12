@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { GDPRService, GDPRRequest, CreateGDPRRequest } from '../../core/services/gdpr.service';
+import { GDPRService, GDPRRequest, CreateGDPRRequest, Consent } from '../../core/services/gdpr.service';
 
 @Component({
   selector: 'app-gdpr-portal',

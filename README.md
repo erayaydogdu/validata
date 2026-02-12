@@ -165,6 +165,21 @@ export const environment = {
 };
 ```
 
+## Test Accounts
+
+In development mode, the database is automatically seeded with test accounts. All accounts use the password `Password123!`.
+
+| Email | Role | Organization |
+|-------|------|--------------|
+| admin@validata.com | Admin | — |
+| hr.manager@acme.com | HR Manager | Acme Corporation |
+| hr.staff@acme.com | HR Staff | Acme Corporation |
+| candidate@example.com | Candidate | — |
+| verifier@validata.com | Verifier | — |
+| compliance@validata.com | Compliance Officer | — |
+
+Login via `POST /api/v1/auth/login` with `{ "email": "...", "password": "Password123!" }`.
+
 ## API Endpoints
 
 ### Authentication
