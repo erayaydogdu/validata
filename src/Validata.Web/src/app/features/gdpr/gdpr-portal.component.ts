@@ -7,311 +7,165 @@ import { GDPRService, GDPRRequest, CreateGDPRRequest, Consent } from '../../core
   selector: 'app-gdpr-portal',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  styles: [],
   template: `
-    <div class="gdpr-portal">
-      <header class="portal-header">
-        <h1>GDPR Portal</h1>
-        <p class="subtitle">Manage your data privacy requests</p>
-      </header>
+    <div>
+      <!-- Header -->
+      <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">GDPR Portal</h1>
+        <p class="mt-1 text-sm text-gray-500">Manage your data privacy requests</p>
+      </div>
 
-      <div class="portal-content">
-        <section class="data-rights">
-          <h2>Your Data Rights</h2>
-          <div class="rights-grid">
-            <div class="right-card" (click)="showRequestForm(1)">
-              <div class="right-icon">📥</div>
-              <h3>Data Export</h3>
-              <p>Download a copy of all your personal data</p>
-            </div>
-            <div class="right-card" (click)="showRequestForm(2)">
-              <div class="right-icon">🗑️</div>
-              <h3>Data Deletion</h3>
-              <p>Request deletion of your personal data</p>
-            </div>
-            <div class="right-card" (click)="showRequestForm(3)">
-              <div class="right-icon">✏️</div>
-              <h3>Data Rectification</h3>
-              <p>Request correction of inaccurate data</p>
-            </div>
-            <div class="right-card" (click)="showRequestForm(4)">
-              <div class="right-icon">⏸️</div>
-              <h3>Restrict Processing</h3>
-              <p>Request restriction of data processing</p>
-            </div>
-          </div>
-        </section>
+      <!-- Data Rights -->
+      <div class="mb-6 rounded-xl border border-gray-200 bg-white p-6">
+        <h2 class="mb-5 text-lg font-semibold text-gray-900">Your Data Rights</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <button
+            class="rounded-lg border-2 border-gray-200 p-5 text-left transition hover:border-brand-500 hover:bg-brand-50/50"
+            (click)="showRequestForm(1)">
+            <span class="mb-3 block text-2xl">📥</span>
+            <h3 class="mb-1 text-sm font-semibold text-gray-900">Data Export</h3>
+            <p class="text-xs text-gray-500">Download a copy of all your personal data</p>
+          </button>
+          <button
+            class="rounded-lg border-2 border-gray-200 p-5 text-left transition hover:border-brand-500 hover:bg-brand-50/50"
+            (click)="showRequestForm(2)">
+            <span class="mb-3 block text-2xl">🗑️</span>
+            <h3 class="mb-1 text-sm font-semibold text-gray-900">Data Deletion</h3>
+            <p class="text-xs text-gray-500">Request deletion of your personal data</p>
+          </button>
+          <button
+            class="rounded-lg border-2 border-gray-200 p-5 text-left transition hover:border-brand-500 hover:bg-brand-50/50"
+            (click)="showRequestForm(3)">
+            <span class="mb-3 block text-2xl">✏️</span>
+            <h3 class="mb-1 text-sm font-semibold text-gray-900">Data Rectification</h3>
+            <p class="text-xs text-gray-500">Request correction of inaccurate data</p>
+          </button>
+          <button
+            class="rounded-lg border-2 border-gray-200 p-5 text-left transition hover:border-brand-500 hover:bg-brand-50/50"
+            (click)="showRequestForm(4)">
+            <span class="mb-3 block text-2xl">⏸️</span>
+            <h3 class="mb-1 text-sm font-semibold text-gray-900">Restrict Processing</h3>
+            <p class="text-xs text-gray-500">Request restriction of data processing</p>
+          </button>
+        </div>
+      </div>
 
-        @if (showForm()) {
-          <section class="request-form">
-            <h2>Submit Data Request</h2>
-            <form (ngSubmit)="submitRequest()">
-              <div class="form-group">
-                <label>Request Type</label>
-                <input type="text" [value]="getRequestTypeName()" readonly class="readonly-input">
-              </div>
-              <div class="form-group">
-                <label>Candidate ID</label>
-                <input type="text" [(ngModel)]="candidateId" name="candidateId" required placeholder="Enter your candidate ID">
-              </div>
-              <div class="form-group">
-                <label>Reason (optional)</label>
-                <textarea [(ngModel)]="reason" name="reason" rows="3" placeholder="Explain your request"></textarea>
-              </div>
-              <div class="form-actions">
-                <button type="button" class="btn-secondary" (click)="cancelRequest()">Cancel</button>
-                <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
-                  {{ isSubmitting() ? 'Submitting...' : 'Submit Request' }}
-                </button>
-              </div>
-            </form>
-          </section>
-        }
-
-        <section class="my-requests">
-          <h2>My Requests</h2>
-          @if (loading()) {
-            <div class="loading">Loading requests...</div>
-          } @else if (requests().length === 0) {
-            <div class="empty-state">
-              <p>You haven't submitted any data requests yet.</p>
+      <!-- Request form -->
+      @if (showForm()) {
+        <div class="mb-6 rounded-xl border border-gray-200 bg-white p-6">
+          <h2 class="mb-5 text-lg font-semibold text-gray-900">Submit Data Request</h2>
+          <form (ngSubmit)="submitRequest()">
+            <div class="mb-4">
+              <label class="mb-1.5 block text-sm font-medium text-gray-700">Request Type</label>
+              <input
+                type="text"
+                [value]="getRequestTypeName()"
+                readonly
+                class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-500">
             </div>
-          } @else {
-            <table class="requests-table">
+            <div class="mb-4">
+              <label class="mb-1.5 block text-sm font-medium text-gray-700">Candidate ID</label>
+              <input
+                type="text"
+                [(ngModel)]="candidateId"
+                name="candidateId"
+                required
+                placeholder="Enter your candidate ID"
+                class="block w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 shadow-sm transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none">
+            </div>
+            <div class="mb-5">
+              <label class="mb-1.5 block text-sm font-medium text-gray-700">Reason (optional)</label>
+              <textarea
+                [(ngModel)]="reason"
+                name="reason"
+                rows="3"
+                placeholder="Explain your request"
+                class="block w-full resize-y rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 shadow-sm transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none"></textarea>
+            </div>
+            <div class="flex justify-end gap-3">
+              <button
+                type="button"
+                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                (click)="cancelRequest()">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600 disabled:opacity-50"
+                [disabled]="isSubmitting()">
+                {{ isSubmitting() ? 'Submitting...' : 'Submit Request' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <!-- Requests table -->
+      <div class="mb-6 rounded-xl border border-gray-200 bg-white p-6">
+        <h2 class="mb-5 text-lg font-semibold text-gray-900">My Requests</h2>
+        @if (loading()) {
+          <div class="py-10 text-center text-sm text-gray-400">Loading requests...</div>
+        } @else if (requests().length === 0) {
+          <div class="py-10 text-center text-sm text-gray-400">You haven't submitted any data requests yet.</div>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full">
               <thead>
-                <tr>
-                  <th>Request ID</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                  <th>Requested</th>
-                  <th>Completed</th>
-                  <th>Actions</th>
+                <tr class="border-b border-gray-200">
+                  <th class="pb-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Request ID</th>
+                  <th class="pb-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Type</th>
+                  <th class="pb-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
+                  <th class="pb-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Requested</th>
+                  <th class="pb-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Completed</th>
+                  <th class="pb-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody class="divide-y divide-gray-100">
                 @for (req of requests(); track req.id) {
                   <tr>
-                    <td>{{ req.id.substring(0, 8) }}...</td>
-                    <td>{{ req.requestTypeName }}</td>
-                    <td>
-                      <span class="status-badge" [class]="getStatusClass(req.status)">
+                    <td class="py-3 font-mono text-xs text-gray-500">{{ req.id.substring(0, 8) }}...</td>
+                    <td class="py-3 text-sm text-gray-900">{{ req.requestTypeName }}</td>
+                    <td class="py-3">
+                      <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium"
+                        [class]="getStatusBadgeClasses(req.status)">
                         {{ req.statusName }}
                       </span>
                     </td>
-                    <td>{{ req.requestedAt | date:'medium' }}</td>
-                    <td>{{ req.completedAt ? (req.completedAt | date:'medium') : '-' }}</td>
-                    <td>
+                    <td class="py-3 text-sm text-gray-500">{{ req.requestedAt | date:'medium' }}</td>
+                    <td class="py-3 text-sm text-gray-500">{{ req.completedAt ? (req.completedAt | date:'medium') : '-' }}</td>
+                    <td class="py-3">
                       @if (req.requestType === 1 && req.status === 3) {
-                        <button class="btn-link" (click)="downloadExport(req.id)">Download</button>
+                        <button class="text-sm font-medium text-brand-600 hover:text-brand-500" (click)="downloadExport(req.id)">Download</button>
                       }
                     </td>
                   </tr>
                 }
               </tbody>
             </table>
-          }
-        </section>
-
-        <section class="consent-section">
-          <h2>Consent Management</h2>
-          <div class="consent-list">
-            @for (consent of consents(); track consent.consentType) {
-              <div class="consent-item">
-                <div class="consent-info">
-                  <strong>{{ consent.consentType }}</strong>
-                  <span class="consent-date">Granted on {{ consent.grantedAt | date:'mediumDate' }}</span>
-                </div>
-                <span class="consent-status" [class.granted]="consent.granted">
-                  {{ consent.granted ? 'Granted' : 'Denied' }}
-                </span>
-              </div>
-            }
           </div>
-        </section>
+        }
+      </div>
+
+      <!-- Consent management -->
+      <div class="rounded-xl border border-gray-200 bg-white p-6">
+        <h2 class="mb-5 text-lg font-semibold text-gray-900">Consent Management</h2>
+        <div class="divide-y divide-gray-100">
+          @for (consent of consents(); track consent.consentType) {
+            <div class="flex items-center justify-between py-3">
+              <div>
+                <p class="text-sm font-medium text-gray-900">{{ consent.consentType }}</p>
+                <p class="text-xs text-gray-500">Granted on {{ consent.grantedAt | date:'mediumDate' }}</p>
+              </div>
+              <span class="text-sm font-medium" [class.text-success-700]="consent.granted" [class.text-danger-700]="!consent.granted">
+                {{ consent.granted ? 'Granted' : 'Denied' }}
+              </span>
+            </div>
+          }
+        </div>
       </div>
     </div>
-  `,
-  styles: [`
-    .gdpr-portal {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-    .portal-header {
-      margin-bottom: 32px;
-    }
-    .portal-header h1 {
-      font-size: 28px;
-      font-weight: 600;
-      color: #1a1a1a;
-      margin: 0 0 8px 0;
-    }
-    .subtitle {
-      color: #666;
-      margin: 0;
-    }
-    section {
-      background: #fff;
-      border-radius: 8px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    section h2 {
-      font-size: 18px;
-      font-weight: 600;
-      margin: 0 0 20px 0;
-      color: #1a1a1a;
-    }
-    .rights-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-    }
-    .right-card {
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 20px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .right-card:hover {
-      border-color: #3b82f6;
-      background: #f8fafc;
-    }
-    .right-icon {
-      font-size: 32px;
-      margin-bottom: 12px;
-    }
-    .right-card h3 {
-      font-size: 16px;
-      font-weight: 600;
-      margin: 0 0 8px 0;
-    }
-    .right-card p {
-      font-size: 14px;
-      color: #666;
-      margin: 0;
-    }
-    .form-group {
-      margin-bottom: 16px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 6px;
-      color: #374151;
-    }
-    .form-group input,
-    .form-group textarea,
-    .readonly-input {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
-    .readonly-input {
-      background: #f3f4f6;
-      color: #6b7280;
-    }
-    .form-group textarea {
-      resize: vertical;
-    }
-    .form-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-    }
-    .btn-primary,
-    .btn-secondary {
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .btn-primary {
-      background: #3b82f6;
-      color: white;
-      border: none;
-    }
-    .btn-primary:disabled {
-      background: #93c5fd;
-    }
-    .btn-secondary {
-      background: white;
-      color: #374151;
-      border: 1px solid #d1d5db;
-    }
-    .btn-link {
-      background: none;
-      border: none;
-      color: #3b82f6;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .requests-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .requests-table th,
-    .requests-table td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .requests-table th {
-      font-weight: 600;
-      font-size: 13px;
-      color: #6b7280;
-      text-transform: uppercase;
-    }
-    .status-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 9999px;
-      font-size: 12px;
-      font-weight: 500;
-    }
-    .status-badge.pending { background: #fef3c7; color: #92400e; }
-    .status-badge.processing { background: #dbeafe; color: #1e40af; }
-    .status-badge.completed { background: #d1fae5; color: #065f46; }
-    .status-badge.rejected { background: #fee2e2; color: #991b1b; }
-    .consent-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .consent-info strong {
-      display: block;
-      font-weight: 500;
-    }
-    .consent-date {
-      font-size: 13px;
-      color: #6b7280;
-    }
-    .consent-status {
-      font-size: 14px;
-      color: #dc2626;
-    }
-    .consent-status.granted {
-      color: #059669;
-    }
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: #6b7280;
-    }
-    .empty-state {
-      text-align: center;
-      padding: 40px;
-      color: #6b7280;
-    }
-  `]
+  `
 })
 export class GDPRPortalComponent {
   private gdprService = inject(GDPRService);
@@ -385,13 +239,13 @@ export class GDPRPortalComponent {
     // Implementation for download
   }
 
-  getStatusClass(status: number): string {
-    const classes: Record<number, string> = {
-      1: 'pending',
-      2: 'processing',
-      3: 'completed',
-      4: 'rejected'
+  getStatusBadgeClasses(status: number): string {
+    const map: Record<number, string> = {
+      1: 'bg-amber-50 text-amber-700',
+      2: 'bg-blue-50 text-blue-700',
+      3: 'bg-green-50 text-green-700',
+      4: 'bg-red-50 text-red-700'
     };
-    return classes[status] || '';
+    return map[status] || 'bg-gray-50 text-gray-700';
   }
 }

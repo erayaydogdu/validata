@@ -8,20 +8,29 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-document-upload',
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
+  styles: [],
   template: `
-    <div class="upload-page">
-      <header class="page-header">
-        <h1>Upload Document</h1>
-        <button class="btn btn-secondary" routerLink="/documents">
+    <div class="mx-auto max-w-2xl">
+      <!-- Header -->
+      <div class="mb-8 flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">Upload Document</h1>
+        <a
+          routerLink="/documents"
+          class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50">
           Back to Documents
-        </button>
-      </header>
+        </a>
+      </div>
 
-      <div class="upload-form">
+      <!-- Upload card -->
+      <div class="rounded-xl border border-gray-200 bg-white p-6 sm:p-8">
         <form (ngSubmit)="onSubmit()">
-          <div class="form-group">
-            <label>Document Type</label>
-            <select [(ngModel)]="documentType" name="documentType" required>
+          <div class="mb-6">
+            <label class="mb-1.5 block text-sm font-medium text-gray-700">Document Type</label>
+            <select
+              [(ngModel)]="documentType"
+              name="documentType"
+              required
+              class="block w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none">
               <option value="">Select type...</option>
               <option [value]="1">Passport</option>
               <option [value]="2">ID Card</option>
@@ -36,56 +45,48 @@ import { FormsModule } from '@angular/forms';
             </select>
           </div>
 
-          <div class="form-group">
-            <label>File</label>
-            <input 
-              type="file" 
-              (change)="onFileSelect($event)"
-              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-              required>
-          </div>
-
-          <div class="form-group">
-            <label>Screening ID (optional)</label>
-            <input 
-              type="text" 
-              [(ngModel)]="screeningId" 
-              name="screeningId"
-              placeholder="Associate with screening...">
-          </div>
-
-          <div class="form-group">
-            <label>Candidate ID (optional)</label>
-            <input 
-              type="text" 
-              [(ngModel)]="candidateId" 
-              name="candidateId"
-              placeholder="Associate with candidate...">
+          <div class="mb-6">
+            <label class="mb-1.5 block text-sm font-medium text-gray-700">File</label>
+            <div class="relative rounded-lg border-2 border-dashed border-gray-300 p-6 text-center transition hover:border-brand-400">
+              <svg class="mx-auto mb-2 h-8 w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
+              </svg>
+              <p class="mb-1 text-sm text-gray-600">Click to select or drag and drop</p>
+              <p class="text-xs text-gray-400">PDF, JPG, PNG, DOC up to 10MB</p>
+              <input
+                type="file"
+                (change)="onFileSelect($event)"
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                required
+                class="absolute inset-0 cursor-pointer opacity-0">
+            </div>
           </div>
 
           @if (selectedFile) {
-            <div class="selected-file">
-              <span class="file-icon">📎</span>
-              <span>{{ selectedFile.name }}</span>
-              <span class="file-size">({{ formatFileSize(selectedFile.size) }})</span>
+            <div class="mb-4 flex items-center gap-2 rounded-lg bg-gray-50 px-4 py-3">
+              <span>📎</span>
+              <span class="text-sm font-medium text-gray-700">{{ selectedFile.name }}</span>
+              <span class="text-xs text-gray-400">({{ formatFileSize(selectedFile.size) }})</span>
             </div>
           }
 
           @if (uploading()) {
-            <div class="progress-bar">
-              <div class="progress" [style.width.%]="uploadProgress()"></div>
+            <div class="mb-4">
+              <div class="h-2 overflow-hidden rounded-full bg-gray-200">
+                <div class="h-full rounded-full bg-brand-500 transition-all duration-300" [style.width.%]="uploadProgress()"></div>
+              </div>
+              <p class="mt-1.5 text-center text-xs text-gray-500">Uploading... {{ uploadProgress() }}%</p>
             </div>
-            <p class="upload-status">Uploading... {{ uploadProgress() }}%</p>
           }
 
           @if (error()) {
-            <div class="error-message">{{ error() }}</div>
+            <div class="mb-4 rounded-lg bg-danger-50 px-4 py-3 text-sm text-danger-700">{{ error() }}</div>
           }
 
-          <div class="form-actions">
-            <button 
-              type="submit" 
-              class="btn btn-primary"
+          <div class="flex justify-end">
+            <button
+              type="submit"
+              class="rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
               [disabled]="!canSubmit() || uploading()">
               Upload Document
             </button>
@@ -93,120 +94,13 @@ import { FormsModule } from '@angular/forms';
         </form>
       </div>
     </div>
-  `,
-  styles: [`
-    .upload-page {
-      padding: 2rem;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-    .page-header h1 {
-      margin: 0;
-    }
-    .upload-form {
-      background: white;
-      border-radius: 8px;
-      padding: 2rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-    .form-group input[type="text"],
-    .form-group select {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-    .form-group input[type="file"] {
-      padding: 0.5rem;
-      border: 1px dashed #ddd;
-      border-radius: 4px;
-      width: 100%;
-    }
-    .selected-file {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem;
-      background: #f5f5f5;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-    }
-    .file-size {
-      color: #666;
-      font-size: 0.875rem;
-    }
-    .progress-bar {
-      height: 8px;
-      background: #e0e0e0;
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 0.5rem;
-    }
-    .progress {
-      height: 100%;
-      background: #1976d2;
-      transition: width 0.3s;
-    }
-    .upload-status {
-      text-align: center;
-      color: #666;
-      margin-bottom: 1rem;
-    }
-    .error-message {
-      color: #d32f2f;
-      padding: 0.75rem;
-      background: #ffebee;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-    }
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 1rem;
-    }
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    .btn-primary {
-      background: #1976d2;
-      color: white;
-    }
-    .btn-primary:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background: #f5f5f5;
-      color: #333;
-    }
-  `]
+  `
 })
 export class DocumentUploadComponent {
   private documentService = inject(DocumentService);
   private router = inject(Router);
 
   documentType = '';
-  screeningId = '';
-  candidateId = '';
   selectedFile: File | null = null;
   uploading = signal(false);
   uploadProgress = signal(0);
@@ -238,9 +132,7 @@ export class DocumentUploadComponent {
 
     this.documentService.uploadDocument(
       this.selectedFile!,
-      parseInt(this.documentType),
-      this.screeningId || undefined,
-      this.candidateId || undefined
+      parseInt(this.documentType)
     ).subscribe({
       next: (doc: Document) => {
         this.uploading.set(false);
