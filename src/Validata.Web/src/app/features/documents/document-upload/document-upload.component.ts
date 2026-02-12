@@ -1,12 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { DocumentService, Document } from '../../services/document.service';
+import { DocumentService, Document } from '../../../core/services/document.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-document-upload',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="upload-page">
       <header class="page-header">
@@ -241,11 +242,11 @@ export class DocumentUploadComponent {
       this.screeningId || undefined,
       this.candidateId || undefined
     ).subscribe({
-      next: (doc) => {
+      next: (doc: Document) => {
         this.uploading.set(false);
         this.router.navigate(['/documents', doc.id]);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error.set(err.error?.message || 'Upload failed');
         this.uploading.set(false);
       }

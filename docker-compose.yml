@@ -1,27 +1,25 @@
-version: '3.8'
-
 services:
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/azure-sql-edge:latest
     container_name: validata-sqlserver
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong@Passw0rd
-      - MSSQL_PID=Express
+      - MSSQL_SA_PASSWORD=YourStrong@Passw0rd
     ports:
       - "1433:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -Q "SELECT 1" || exit 1
+      test: ["CMD-SHELL", "curl -s telnet://localhost:1433 --connect-timeout 2 --max-time 2; test $$? -ne 7"]
       interval: 10s
-      timeout: 5s
-      retries: 10
+      timeout: 10s
+      retries: 15
+      start_period: 40s
 
   api:
     build:
-      context: ./src/Validata.Api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/Validata.Api/Dockerfile
     container_name: validata-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -30,7 +28,7 @@ services:
       - Jwt__Issuer=Validata
       - Jwt__Audience=ValidataUsers
     ports:
-      - "5000:5000"
+      - "5100:5000"
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -38,11 +36,9 @@ services:
 
   web:
     build:
-      context: ./src/Validata.Web
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/Validata.Web/Dockerfile
     container_name: validata-web
-    environment:
-      - API_URL=http://localhost:5000/api/v1
     ports:
       - "4200:80"
     depends_on:
