@@ -1,19 +1,8 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
-
-# User-specific files
-*.rsuser
-*.suo
-*.user
-*.userosscache
-*.vcxuser
-*.vcxproj
-*.userosscache
-*.vcxproj.filters
-
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
+[Rr]eleases/
 x64/
 x86/
 [Aa][Rr][Mm]/
@@ -24,6 +13,29 @@ x86/
 [Ll]og/
 [Ll]ogs/
 artifacts/
+bld/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+# User-specific files (MonoDevelop/Xamarin Studio)
+*.userprefs
+
+# NuGet
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nupkg
+**/packages/repositories.config
+project.lock.json
+project.fragment.lock.json
 
 # .NET Core
 .projections
@@ -32,57 +44,84 @@ artifacts/
 .dotnet/
 .dotnet-tools/
 
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Publish output
+*.publish.xml
+*.[Pp]ublish.xml
+publish/
+
+# Test results
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# Code coverage (Coverlet)
+coverage*.json
+coverage*.xml
+coverage*.info
+
 # Visual Studio Code
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-.history/*
+.history/
 
-# IDEs and editors
+# JetBrains IDEs
 .idea/
-.vs/
-*.swp
-*.swo
-*~
+*.sln.iml
+
+# OS files
 .DS_Store
 Thumbs.db
-*.bak
-*.tmp
+ehthumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
 
 # Node
 node_modules/
-npm-debug.log
-yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.*
+.yarn/
 
 # Angular
-src/Validata.Web/dist/
-src/Validata.Web/tmp/
-src/Validata.Web/out-tsc/
-src/Validata.Web/.angular/
-src/Validata.Web/coverage/
+.angular/
+dist/
+tmp/
+out-tsc/
 
-# Test results
-TestResults/
-coverage/
+# Environment and secrets
+.env
+.env.*
+!.env.example
+appsettings.*.json
+!appsettings.Development.json
+*.secrets
+*.pem
+*.pfx
+*.key
 
 # SQL Server
 *.mdf
 *.ldf
-
-# Secrets and config
-appsettings.*.json
-!.appsettings.Development.json
-*.secrets
-*.pem
+*.ndf
 
 # Logs
 *.log
 logs/
-(Log|Publish)Output/
 
 # Misc
 *.cache
 *.zip
 *.tar.gz
+*.bak
+*.tmp
+*.orig
