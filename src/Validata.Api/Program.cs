@@ -8,6 +8,7 @@ using Validata.Core.Interfaces;
 using Validata.Infrastructure.Data;
 using Validata.Infrastructure.Data.Repositories;
 using Validata.Infrastructure.Identity;
+using Validata.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,6 +96,11 @@ builder.Services.AddScoped<IGDPRRequestRepository, GDPRRequestRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 builder.Services.AddSingleton(new JwtTokenService(jwtSecret, jwtIssuer, jwtAudience));
+
+var blobConnectionString = builder.Configuration.GetConnectionString("BlobStorage")
+    ?? "UseDevelopmentStorage=true";
+builder.Services.AddSingleton<IBlobStorageService>(new BlobStorageService(blobConnectionString));
+builder.Services.AddScoped<DocumentProcessingService>();
 
 var app = builder.Build();
 

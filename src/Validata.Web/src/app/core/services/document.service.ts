@@ -60,17 +60,10 @@ export class DocumentService {
     return this.http.get<Document>(`${this.apiUrl}/${id}`);
   }
 
-  uploadDocument(
-    file: File,
-    type: number,
-    screeningId?: string,
-    candidateId?: string
-  ): Observable<Document> {
+  uploadDocument(file: File, type: number): Observable<Document> {
     const formData = new FormData();
     formData.append('File', file);
     formData.append('Type', type.toString());
-    if (screeningId) formData.append('ScreeningId', screeningId);
-    if (candidateId) formData.append('CandidateId', candidateId);
 
     return this.http.post<Document>(`${this.apiUrl}/upload`, formData);
   }

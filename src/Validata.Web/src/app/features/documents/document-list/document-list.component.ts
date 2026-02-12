@@ -7,62 +7,76 @@ import { DocumentService, Document } from '../../../core/services/document.servi
   selector: 'app-document-list',
   standalone: true,
   imports: [CommonModule, RouterModule],
+  styles: [],
   template: `
-    <div class="documents-page">
-      <header class="page-header">
-        <h1>Documents</h1>
-        <button class="btn btn-primary" routerLink="/documents/upload">
+    <div>
+      <!-- Header -->
+      <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">Documents</h1>
+        <a
+          routerLink="/documents/upload"
+          class="inline-flex items-center justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-600">
+          <svg class="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+          </svg>
           Upload Document
-        </button>
-      </header>
+        </a>
+      </div>
 
       @if (loading()) {
-        <div class="loading">Loading documents...</div>
+        <div class="py-12 text-center text-sm text-gray-400">Loading documents...</div>
       } @else if (error()) {
-        <div class="error">{{ error() }}</div>
+        <div class="rounded-lg bg-danger-50 px-4 py-3 text-sm text-danger-700">{{ error() }}</div>
       } @else {
-        <div class="documents-grid">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           @for (doc of documents(); track doc.id) {
-            <div class="document-card" [class]="'status-' + doc.status.toLowerCase()">
-              <div class="doc-icon">
-                <span class="icon">📄</span>
-              </div>
-              <div class="doc-info">
-                <h3>{{ doc.fileName }}</h3>
-                <p class="doc-type">{{ doc.typeName }}</p>
-                <span class="status-badge" [class]="doc.status.toLowerCase()">
+            <div class="rounded-xl border border-gray-200 bg-white p-5 transition hover:shadow-md">
+              <div class="mb-3 flex items-start justify-between">
+                <span class="text-2xl">📄</span>
+                <span class="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                  [class]="getStatusClasses(doc.status)">
                   {{ doc.status }}
                 </span>
-                <p class="doc-date">{{ doc.createdAt | date:'medium' }}</p>
               </div>
-              <div class="doc-actions">
-                <button class="btn btn-sm" [routerLink]="['/documents', doc.id]">
+              <h3 class="mb-1 truncate text-sm font-semibold text-gray-900">{{ doc.fileName }}</h3>
+              <p class="mb-3 text-xs text-gray-500">{{ doc.typeName }}</p>
+              <p class="mb-4 text-xs text-gray-400">{{ doc.createdAt | date:'medium' }}</p>
+              <div class="flex gap-2">
+                <button
+                  class="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
+                  [routerLink]="['/documents', doc.id]">
                   View
                 </button>
-                <button class="btn btn-sm btn-download" (click)="download(doc.id)">
+                <button
+                  class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-200"
+                  (click)="download(doc.id)">
                   Download
                 </button>
               </div>
             </div>
           } @empty {
-            <div class="empty-state">
-              <p>No documents found</p>
-              <button class="btn btn-primary" routerLink="/documents/upload">
+            <div class="col-span-full py-12 text-center">
+              <p class="mb-4 text-sm text-gray-400">No documents found</p>
+              <a
+                routerLink="/documents/upload"
+                class="inline-flex items-center rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600">
                 Upload your first document
-              </button>
+              </a>
             </div>
           }
         </div>
 
         @if (pagination().hasNextPage || pagination().hasPreviousPage) {
-          <div class="pagination">
-            <button 
+          <div class="mt-8 flex items-center justify-center gap-4">
+            <button
+              class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               [disabled]="!pagination().hasPreviousPage"
               (click)="changePage(pagination().page - 1)">
               Previous
             </button>
-            <span>Page {{ pagination().page }} of {{ pagination().totalPages }}</span>
-            <button 
+            <span class="text-sm text-gray-500">Page {{ pagination().page }} of {{ pagination().totalPages }}</span>
+            <button
+              class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               [disabled]="!pagination().hasNextPage"
               (click)="changePage(pagination().page + 1)">
               Next
@@ -71,123 +85,11 @@ import { DocumentService, Document } from '../../../core/services/document.servi
         }
       }
     </div>
-  `,
-  styles: [`
-    .documents-page {
-      padding: 2rem;
-    }
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-    .page-header h1 {
-      margin: 0;
-      font-size: 1.75rem;
-    }
-    .documents-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-    .document-card {
-      background: white;
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .doc-icon {
-      font-size: 2rem;
-    }
-    .doc-info h3 {
-      margin: 0 0 0.5rem;
-      font-size: 1rem;
-    }
-    .doc-type {
-      color: #666;
-      font-size: 0.875rem;
-      margin: 0 0 0.5rem;
-    }
-    .status-badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-    .status-badge.uploaded { background: #e3f2fd; color: #1976d2; }
-    .status-badge.processing { background: #fff3e0; color: #f57c00; }
-    .status-badge.pendingreview { background: #fce4ec; color: #c2185b; }
-    .status-badge.verified { background: #e8f5e9; color: #388e3c; }
-    .status-badge.rejected { background: #ffebee; color: #d32f2f; }
-    .doc-date {
-      font-size: 0.75rem;
-      color: #999;
-      margin: 0;
-    }
-    .doc-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: auto;
-    }
-    .btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.875rem;
-    }
-    .btn-primary {
-      background: #1976d2;
-      color: white;
-    }
-    .btn-sm {
-      padding: 0.375rem 0.75rem;
-      font-size: 0.75rem;
-    }
-    .btn-download {
-      background: #f5f5f5;
-      color: #333;
-    }
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-    .pagination button {
-      padding: 0.5rem 1rem;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .pagination button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .empty-state {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-    .loading, .error {
-      text-align: center;
-      padding: 2rem;
-    }
-    .error {
-      color: #d32f2f;
-    }
-  `]
+  `
 })
 export class DocumentListComponent {
   private documentService = inject(DocumentService);
-  
+
   documents = signal<Document[]>([]);
   pagination = signal({
     page: 1,
@@ -239,5 +141,17 @@ export class DocumentListComponent {
           console.error('Download failed', err);
         }
       });
+  }
+
+  getStatusClasses(status: string): string {
+    const s = status.toLowerCase();
+    const map: Record<string, string> = {
+      uploaded: 'bg-blue-50 text-blue-700',
+      processing: 'bg-amber-50 text-amber-700',
+      pendingreview: 'bg-pink-50 text-pink-700',
+      verified: 'bg-green-50 text-green-700',
+      rejected: 'bg-red-50 text-red-700'
+    };
+    return map[s] || 'bg-gray-50 text-gray-700';
   }
 }

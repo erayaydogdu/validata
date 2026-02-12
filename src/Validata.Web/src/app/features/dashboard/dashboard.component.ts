@@ -1,92 +1,45 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
+  styles: [],
   template: `
-    <div class="dashboard">
-      <header class="page-header">
-        <h1>Dashboard</h1>
-        <div class="user-info">Welcome back!</div>
-      </header>
-      
-      <div class="stats-grid">
-        <div class="stat-card">
-          <h3>Active Screenings</h3>
-          <p class="stat-value">0</p>
+    <div>
+      <!-- Page header -->
+      <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p class="mt-1 text-sm text-gray-500">Welcome back!</p>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-xl border border-gray-200 bg-white p-6">
+          <h3 class="text-sm font-medium text-gray-500">Active Screenings</h3>
+          <p class="mt-2 text-3xl font-bold text-gray-900">0</p>
         </div>
-        <div class="stat-card">
-          <h3>Completed This Week</h3>
-          <p class="stat-value">0</p>
+        <div class="rounded-xl border border-gray-200 bg-white p-6">
+          <h3 class="text-sm font-medium text-gray-500">Completed This Week</h3>
+          <p class="mt-2 text-3xl font-bold text-gray-900">0</p>
         </div>
-        <div class="stat-card">
-          <h3>Pending Documents</h3>
-          <p class="stat-value">0</p>
+        <div class="rounded-xl border border-gray-200 bg-white p-6">
+          <h3 class="text-sm font-medium text-gray-500">Pending Documents</h3>
+          <p class="mt-2 text-3xl font-bold text-gray-900">0</p>
         </div>
-        <div class="stat-card">
-          <h3>Average Time</h3>
-          <p class="stat-value">0 days</p>
+        <div class="rounded-xl border border-gray-200 bg-white p-6">
+          <h3 class="text-sm font-medium text-gray-500">Average Time</h3>
+          <p class="mt-2 text-3xl font-bold text-gray-900">0 days</p>
         </div>
       </div>
 
-      <div class="dashboard-section">
-        <h2>Recent Activity</h2>
-        <p class="empty-message">No recent activity</p>
+      <!-- Recent activity -->
+      <div class="rounded-xl border border-gray-200 bg-white p-6">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900">Recent Activity</h2>
+        <p class="py-8 text-center text-sm text-gray-400">No recent activity</p>
       </div>
     </div>
-  `,
-  styles: [`
-    .dashboard {
-      padding: 2rem;
-    }
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-    .page-header h1 {
-      margin: 0;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    .stat-card {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .stat-card h3 {
-      margin: 0 0 0.5rem;
-      color: #666;
-      font-size: 0.875rem;
-      font-weight: normal;
-    }
-    .stat-value {
-      font-size: 2rem;
-      font-weight: bold;
-      margin: 0;
-    }
-    .dashboard-section {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .dashboard-section h2 {
-      margin: 0 0 1rem;
-    }
-    .empty-message {
-      color: #999;
-      text-align: center;
-      padding: 2rem;
-    }
-  `]
+  `
 })
 export class DashboardComponent {}

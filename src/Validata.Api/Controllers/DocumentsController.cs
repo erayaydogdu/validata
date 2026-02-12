@@ -16,17 +16,20 @@ public class DocumentsController : ControllerBase
 {
     private readonly IDocumentRepository _documentRepository;
     private readonly ICandidateRepository _candidateRepository;
+    private readonly IUserRepository _userRepository;
     private readonly DocumentProcessingService _documentProcessingService;
     private readonly ILogger<DocumentsController> _logger;
 
     public DocumentsController(
         IDocumentRepository documentRepository,
         ICandidateRepository candidateRepository,
+        IUserRepository userRepository,
         DocumentProcessingService documentProcessingService,
         ILogger<DocumentsController> logger)
     {
         _documentRepository = documentRepository;
         _candidateRepository = candidateRepository;
+        _userRepository = userRepository;
         _documentProcessingService = documentProcessingService;
         _logger = logger;
     }
@@ -47,16 +50,22 @@ public class DocumentsController : ControllerBase
                 return BadRequest(new ErrorResponse { Code = "INVALID_FILE", Message = "No file provided" });
             }
 
-            if (request.CandidateId == null && request.ScreeningId == null)
-            {
-                return BadRequest(new ErrorResponse { Code = "INVALID_REQUEST", Message = "Either CandidateId or ScreeningId must be provided" });
-            }
-
+            // Auto-resolve candidate from the authenticated user's email
             Guid? candidateId = request.CandidateId;
             if (candidateId == null && request.ScreeningId.HasValue)
             {
                 var screening = await _documentRepository.GetByIdAsync(request.ScreeningId.Value);
                 candidateId = screening?.CandidateId;
+            }
+
+            if (candidateId == null)
+            {
+                var user = await _userRepository.GetByIdAsync(uploadedById);
+                if (user != null)
+                {
+                    var candidate = await _candidateRepository.GetByEmailAsync(user.Email);
+                    candidateId = candidate?.Id;
+                }
             }
 
             using var memoryStream = new MemoryStream();
