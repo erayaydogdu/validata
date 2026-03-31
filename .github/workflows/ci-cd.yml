@@ -38,7 +38,7 @@ jobs:
         run: npm run build --prefix src/Validata.Web
       
       - name: Upload Coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: ./coverage/*/coverage.cobertura.xml
           fail_ci_if_error: false
