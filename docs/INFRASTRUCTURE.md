@@ -186,52 +186,70 @@ on:
     branches: [main]
 
 jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.check.outputs.deploy }}
+    steps:
+      - id: check
+        env:
+          REGISTRY: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        run: |
+          if [ -n "$REGISTRY" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            echo "Registry configured - docker/deploy jobs will run."
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "Registry secrets not configured - skipping docker/deploy jobs."
+          fi
+
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Setup .NET 10
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
       
       - name: Restore Dependencies (.NET)
-        run: dotnet restore src/Validata.sln
+        run: dotnet restore Validata.slnx
       
       - name: Build (.NET)
-        run: dotnet build src/Validata.sln --no-restore
+        run: dotnet build Validata.slnx --no-restore
       
       - name: Run Tests (.NET)
-        run: dotnet test src/Validata.sln --no-build --verbosity minimal --collect:"Xplat Code Coverage"
+        run: dotnet test Validata.slnx --no-build --verbosity minimal --collect:"Xplat Code Coverage"
       
       - name: Install Angular
-        run: npm install
+        run: npm install --prefix src/Validata.Web
       
       - name: Build Angular
-        run: npm run build
+        run: npm run build --prefix src/Validata.Web
       
       - name: Upload Coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v6
         with:
           files: ./coverage/*/coverage.cobertura.xml
+          fail_ci_if_error: false
 
   docker:
-    needs: test
+    needs: [test, preflight]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    if: needs.preflight.outputs.deploy == 'true' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Login to Container Registry
-        uses: azure/docker-login@v1
+        uses: docker/login-action@v4
         with:
-          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
       
@@ -246,9 +264,9 @@ jobs:
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/validata-web:${{ github.sha }}
 
   deploy-dev:
-    needs: docker
+    needs: [docker, preflight]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    if: needs.preflight.outputs.deploy == 'true' && github.ref == 'refs/heads/develop'
     environment: Development
     steps:
       - name: Deploy to Development
@@ -259,9 +277,9 @@ jobs:
           images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/validata-api:${{ github.sha }}
 
   deploy-staging:
-    needs: docker
+    needs: [docker, preflight]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: needs.preflight.outputs.deploy == 'true' && github.ref == 'refs/heads/main'
     environment: Staging
     steps:
       - name: Deploy to Staging
@@ -270,20 +288,9 @@ jobs:
           app-name: validata-api-staging
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
           images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/validata-api:${{ github.sha }}
-
-  deploy-production:
-    needs: [deploy-staging, test]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    environment: Production
-    steps:
-      - name: Deploy to Production
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: validata-api-prod
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_PROD }}
-          images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/validata-api:${{ github.sha }}
 ```
+
+> The workflow above mirrors `.github/workflows/ci-cd.yml`, which is the source of truth.
 
 ---
 
@@ -291,36 +298,50 @@ jobs:
 
 ### Backend Dockerfile
 ```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-WORKDIR /src
-COPY src/*.sln ./
-COPY src/**/*.csproj ./
-RUN dotnet restore
-COPY . .
-RUN dotnet publish -c Release -o /publish
-
-FROM mcr.microsoft.com/dotnet/aspnet:10.0
-WORKDIR /publish
-COPY --from=build /publish .
-ENV ASPNETCORE_URLS=http://+:5000
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS base
+WORKDIR /app
 EXPOSE 5000
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+WORKDIR /src
+
+COPY src/Validata.Core/Validata.Core.csproj src/Validata.Core/
+COPY src/Validata.Application/Validata.Application.csproj src/Validata.Application/
+COPY src/Validata.Infrastructure/Validata.Infrastructure.csproj src/Validata.Infrastructure/
+COPY src/Validata.Integration/Validata.Integration.csproj src/Validata.Integration/
+COPY src/Validata.Api/Validata.Api.csproj src/Validata.Api/
+RUN dotnet restore src/Validata.Api/Validata.Api.csproj
+
+COPY src/Validata.Core/ src/Validata.Core/
+COPY src/Validata.Application/ src/Validata.Application/
+COPY src/Validata.Infrastructure/ src/Validata.Infrastructure/
+COPY src/Validata.Integration/ src/Validata.Integration/
+COPY src/Validata.Api/ src/Validata.Api/
+
+RUN dotnet publish src/Validata.Api/Validata.Api.csproj -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+ENV ASPNETCORE_URLS=http://+:5000
 ENTRYPOINT ["dotnet", "Validata.Api.dll"]
 ```
 
 ### Frontend Dockerfile
 ```dockerfile
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
+
+COPY src/Validata.Web/package.json src/Validata.Web/package-lock.json* ./
+RUN npm ci
+
+COPY src/Validata.Web/ .
 RUN npm run build
 
-FROM nginx:alpine
-COPY --from=build /app/dist/browser /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+FROM nginx:alpine AS final
+COPY --from=build /app/dist/validata-web/browser /usr/share/nginx/html
+COPY src/Validata.Web/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
 ```
 
 ---

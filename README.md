@@ -1,11 +1,11 @@
 # Validata - Employment Documentation Validation Platform
 
-An end-to-end employment screening platform built with .NET 10 and Angular 19. Features include candidate screening, document verification, OCR processing, GDPR compliance, and comprehensive reporting dashboards.
+An end-to-end employment screening platform built with .NET 10 and Angular 20. Features include candidate screening, document verification, OCR processing, GDPR compliance, and comprehensive reporting dashboards.
 
 ## Tech Stack
 
 - **Backend:** .NET 10, ASP.NET Core Web API
-- **Frontend:** Angular 19, TypeScript, SCSS
+- **Frontend:** Angular 20, TypeScript, SCSS
 - **Database:** SQL Server (Azure SQL)
 - **Authentication:** JWT with refresh tokens
 - **Infrastructure:** Azure App Service, Azure Blob Storage
@@ -39,7 +39,7 @@ validata/
 │   │
 │   ├── Validata.Worker/          # Background jobs
 │   │
-│   └── Validata.Web/             # Angular 19 frontend
+│   └── Validata.Web/             # Angular 20 frontend
 │       ├── src/
 │       │   ├── app/
 │       │   │   ├── core/         # Core services, guards, interceptors
@@ -96,7 +96,7 @@ validata/
 ### Prerequisites
 
 - .NET 10 SDK
-- Node.js 20+
+- Node.js 20.19+, 22.12+, or 24 (CI runs 24; the frontend Docker image uses 22)
 - SQL Server (or Azure SQL)
 - Azure Storage Account (for blob storage)
 
@@ -104,10 +104,10 @@ validata/
 
 ```bash
 # Restore dependencies
-dotnet restore src/Validata.sln
+dotnet restore Validata.slnx
 
 # Build
-dotnet build src/Validata.sln
+dotnet build Validata.slnx
 
 # Run migrations (when database is available)
 dotnet ef migrations add InitialCreate --project src/Validata.Infrastructure
