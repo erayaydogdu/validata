@@ -101,6 +101,10 @@ var blobConnectionString = builder.Configuration.GetConnectionString("BlobStorag
     ?? "UseDevelopmentStorage=true";
 builder.Services.AddSingleton<IBlobStorageService>(new BlobStorageService(blobConnectionString));
 builder.Services.AddScoped<DocumentProcessingService>();
+builder.Services.AddScoped<ReportingService>();
+builder.Services.AddScoped<GDPRService>();
+builder.Services.AddScoped<ScreeningWorkflowService>();
+builder.Services.AddScoped<SlaMonitoringService>();
 
 var app = builder.Build();
 
