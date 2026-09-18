@@ -7,6 +7,23 @@ on:
     branches: [main]
 
 jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.check.outputs.deploy }}
+    steps:
+      - id: check
+        env:
+          REGISTRY: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        run: |
+          if [ -n "$REGISTRY" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            echo "Registry configured - docker/deploy jobs will run."
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "Registry secrets not configured - skipping docker/deploy jobs."
+          fi
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -44,9 +61,9 @@ jobs:
           fail_ci_if_error: false
 
   docker:
-    needs: test
+    needs: [test, preflight]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    if: needs.preflight.outputs.deploy == 'true' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     steps:
       - uses: actions/checkout@v4
       
@@ -68,9 +85,9 @@ jobs:
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/validata-web:${{ github.sha }}
 
   deploy-dev:
-    needs: docker
+    needs: [docker, preflight]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    if: needs.preflight.outputs.deploy == 'true' && github.ref == 'refs/heads/develop'
     environment: Development
     steps:
       - name: Deploy to Development
@@ -81,9 +98,9 @@ jobs:
           images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/validata-api:${{ github.sha }}
 
   deploy-staging:
-    needs: docker
+    needs: [docker, preflight]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: needs.preflight.outputs.deploy == 'true' && github.ref == 'refs/heads/main'
     environment: Staging
     steps:
       - name: Deploy to Staging
