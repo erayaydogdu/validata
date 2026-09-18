@@ -23,13 +23,13 @@ jobs:
           node-version: '20'
       
       - name: Restore Dependencies (.NET)
-        run: dotnet restore src/Validata.sln
+        run: dotnet restore Validata.slnx
       
       - name: Build (.NET)
-        run: dotnet build src/Validata.sln --no-restore
+        run: dotnet build Validata.slnx --no-restore
       
       - name: Run Tests (.NET)
-        run: dotnet test src/Validata.sln --no-build --verbosity minimal --collect:"Xplat Code Coverage"
+        run: dotnet test Validata.slnx --no-build --verbosity minimal --collect:"Xplat Code Coverage"
       
       - name: Install Angular
         run: npm install --prefix src/Validata.Web
