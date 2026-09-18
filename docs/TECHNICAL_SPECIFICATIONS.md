@@ -208,7 +208,7 @@ src/
     │   └── ExternalApiSyncWorker.cs
 ```
 
-### 4.3 Frontend Architecture (Angular 19+)
+### 4.3 Frontend Architecture (Angular 20+)
 
 ```
 src/
