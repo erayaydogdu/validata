@@ -167,7 +167,7 @@ public class ScreeningWorkflowService
         var allSteps = await _stepRepository.GetByScreeningRequestIdAsync(step.ScreeningRequestId);
         var pendingSteps = allSteps.Where(s => s.Status == (int)VerificationStatus.Pending).ToList();
         var failedSteps = allSteps.Where(s => s.Status == (int)VerificationStatus.Completed &&
-            System.Text.Json.JsonSerializer.Deserialize<dynamic>(s.Result ?? "{}").Passed == false).ToList();
+            HasExplicitlyFailed(s.Result)).ToList();
 
         var screening = await _screeningRepository.GetByIdAsync(step.ScreeningRequestId);
         if (screening == null) return false;
@@ -191,6 +191,32 @@ public class ScreeningWorkflowService
         _logger.LogInformation("Verification step {StepId} completed for screening {ScreeningId}", stepId, step.ScreeningRequestId);
 
         return true;
+    }
+
+    /// <summary>
+    /// Reads the "Passed" flag that CompleteVerificationAsync writes into a step result.
+    /// Returns true only when the result explicitly records Passed = false; missing, malformed
+    /// or non-object results are treated as "not a recorded failure".
+    /// </summary>
+    private static bool HasExplicitlyFailed(string? resultJson)
+    {
+        if (string.IsNullOrWhiteSpace(resultJson))
+        {
+            return false;
+        }
+
+        try
+        {
+            using var document = System.Text.Json.JsonDocument.Parse(resultJson);
+
+            return document.RootElement.ValueKind == System.Text.Json.JsonValueKind.Object
+                && document.RootElement.TryGetProperty("Passed", out var passed)
+                && passed.ValueKind == System.Text.Json.JsonValueKind.False;
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return false;
+        }
     }
 
     public async Task<ScreeningRequest?> GetScreeningWithStepsAsync(Guid screeningId)

@@ -368,5 +368,4 @@ public class CompleteVerificationRequest
 public class ScreeningDetailResponse : ScreeningResponse
 {
     public string? Notes { get; set; }
-    public IEnumerable<VerificationStepResponse> Steps { get; set; } = new List<VerificationStepResponse>();
 }
